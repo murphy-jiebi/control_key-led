@@ -12,11 +12,10 @@ typedef struct
 }UART_T;
 
 extern UART_T usart1;
-extern UART_T usart2;
+
 
 extern UART_HandleTypeDef huart1;
 
-extern UART_HandleTypeDef huart2;
 
 void DMA_Init(void);
 

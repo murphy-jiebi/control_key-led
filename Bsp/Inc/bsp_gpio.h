@@ -3,6 +3,12 @@
 
 #include "main.h" 	
 
+typedef struct 
+{
+	GPIO_TypeDef *key_port;
+	uint32_t		key_pin;
+}key_gpio_typedef;
+
 #define LED1_SDB_PORT        GPIOB
 #define LED1_SDB_PIN         GPIO_PIN_4
 

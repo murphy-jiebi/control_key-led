@@ -38,7 +38,7 @@ typedef struct
 }IIC_gpio_typedef;
 
 //I2C所有操作函数
-void I2C_Init(void);                //初始化I2C的IO口				 
+void bsp_IIC_Init(void);                //初始化I2C的IO口				 
 void I2C_Start(uint8_t ch);				//发送I2C开始信号
 void I2C_Stop(uint8_t ch);	  			//发送I2C停止信号
 

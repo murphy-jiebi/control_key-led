@@ -4,7 +4,8 @@
 #define LED1                    0x00
 #define LED2                    0x01
 
-#define LED_ADDR                0x78
+#define LED_ADDR1               0x78
+#define LED_ADDR2               0x7E
 
 #define REG_SHUTDOWN            0x00
 #define REG_DUTY_CH(x)          (x)
@@ -16,7 +17,7 @@
 
 #define DATA_POWER_OFF          0x00
 #define DATA_POWER_ON           0x01
-#define DATA_PWM_DUTY           0x0F
+#define DATA_PWM_DUTY           0xFF
 #define DATA_REG_UPDATE         0x00
 #define DATA_CURRENT_DIV1       (0x00 <<1)
 #define DATA_CURRENT_DIV2       (0x01 <<1)
@@ -31,10 +32,12 @@
 uint8_t pwmDuty[36]={0};
 uint8_t ledCtrl[36]={0};
 
+const uint8_t ledAddr[2]={LED_ADDR1,LED_ADDR2};
+
 void LedWrite(uint8_t ch,uint8_t reg,uint8_t data)
 {
     I2C_Start(ch);
-    I2C_Send_Byte(ch,LED_ADDR);
+    I2C_Send_Byte(ch,ledAddr[ch]);
     I2C_Wait_Ack(ch);
     I2C_Send_Byte(ch,reg);
     I2C_Wait_Ack(ch);
@@ -46,7 +49,7 @@ void LedWriteMulti(uint8_t ch,uint8_t reg,uint8_t *data,uint8_t len)
 {
     uint8_t i;
     I2C_Start(ch);
-    I2C_Send_Byte(ch,LED_ADDR);
+    I2C_Send_Byte(ch,ledAddr[ch]);
     I2C_Wait_Ack(ch);
     I2C_Send_Byte(ch,reg);
     I2C_Wait_Ack(ch);
@@ -90,7 +93,7 @@ void LedSet(uint8_t led,uint8_t ch,uint8_t *cmd,uint8_t len)
 
 void LedInit(void)
 {
-    I2C_Init();
+    bsp_IIC_Init();
     
     LedWrite(LED1,REG_SHUTDOWN,DATA_POWER_ON);
     LedWrite(LED1,REG_FRE_SET,DATA_FRE_3K);
@@ -112,19 +115,36 @@ void LedInit(void)
 uint8_t status_color[5]={LED_NONE,LED_GREEN,LED_BLUE,LED_RED,LED_YELLOW};
 void LedRefresh(uint8_t *state)
 {
-    static uint8_t preState[6]={0};
-    uint8_t buf[18]={0};
-    if(memcmp(preState,state,6)!=0)
+    static uint8_t preState[14]={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,};
+    uint8_t buf[21]={0};
+    uint8_t i=0;
+    if(memcmp(preState,state,7)!=0)
     {
-        for(uint8_t i=0;i<6;i++)
+        for(i=0;i<7;i++)
         {
             buf[i*3]=(status_color[state[i]]&LED_BLUE)?1:0;
             buf[i*3+1]=(status_color[state[i]]&LED_GREEN)?1:0;
             buf[i*3+2]=(status_color[state[i]]&LED_RED)?1:0;
         }
-        LedSet(LED1,0,buf,18);
+        LedSet(LED1,0,buf,21);
         LedWrite(LED1,REG_UPDATE,0x00);
-        memcpy(preState,state,6);
+
+        memcpy(preState,state,7);
+    }
+
+    if(memcmp(&preState[7],&state[7],7)!=0)
+    {
+
+        for(i=0;i<7;i++)
+        {
+            buf[i*3]=(status_color[state[i+7]]&LED_BLUE)?1:0;
+            buf[i*3+1]=(status_color[state[i+7]]&LED_GREEN)?1:0;
+            buf[i*3+2]=(status_color[state[i+7]]&LED_RED)?1:0;
+        }
+        LedSet(LED2,0,buf,30);
+        LedWrite(LED2,REG_UPDATE,0x00);
+        memcpy(&preState[7],&state[7],7);
+
     }
 }
 

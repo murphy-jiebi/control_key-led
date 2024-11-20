@@ -14,7 +14,7 @@
 
 IIC_gpio_typedef  iic_gpio[2]=
 {
-    {GPIOB,GPIO_PIN_6,GPIOB,GPIO_PIN_6},
+    {GPIOB,GPIO_PIN_6,GPIOB,GPIO_PIN_7},
     {GPIOB,GPIO_PIN_10,GPIOB,GPIO_PIN_11},
 };
 
