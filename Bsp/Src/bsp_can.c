@@ -60,7 +60,7 @@ void CAN_SendMsg(uint8_t *buf,uint8_t len)
     
     txheader.RTR = CAN_RTR_DATA;
     txheader.IDE = CAN_ID_STD;
-    txheader.StdId = 0x601;
+    txheader.StdId = devID;
     txheader.TransmitGlobalTime = DISABLE;
     txheader.DLC =len;
     
@@ -127,8 +127,15 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     CAN_RxHeaderTypeDef CAN_rxheader;
     if(HAL_CAN_GetRxMessage(hcan,CAN_RX_FIFO0,&CAN_rxheader,canRx.buf) == HAL_OK)
     {
-        canRx.len = CAN_rxheader.DLC;
-        canRx.flag = 1;
+        if(CAN_rxheader.StdId == 0x01)
+        {
+            canRx.len = CAN_rxheader.DLC;
+            canRx.flag = 1;
+        }
+        
 //        CAN_SendMsg(canRx.buf,canRx.len);
     }
 }
+
+
+

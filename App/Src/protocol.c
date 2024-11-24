@@ -32,86 +32,47 @@ uint8_t Get_CrcXOR(uint8_t *_ucpBuf, uint16_t _usLen)
 
 uint8_t ProtocolParse(uint8_t *mess,uint8_t len)
 {
-    uint8_t temp_group=0;
-    uint8_t temp_dev=0;
-    uint8_t temp_cmd=0;
-    if(mess[FRAME_OFFSET_HEAD]!=FRAME_DATA_HEAD)
+
+    if(mess[FRAME_OFFSET_HEAD]!=0xAA)
     {
         return 0;
     }
-    if(mess[FRAME_OFFSET_LEN]!=(len-1))
+    if(mess[2]!= 0x55)
     {
         return 0;
     }
-    if(mess[FRAME_OFFSET_GROUP]!=groupSN)
-    {
-       return 0; 
-    }
-    if(mess[FRAME_OFFSET_DEV]!=devSN)
-    {
-        return 0;
-    }
+    channelStatus[0]=(mess[2]>>0)&0x03;
+    channelStatus[1]=(mess[2]>>2)&0x03;
+    channelStatus[2]=(mess[2]>>4)&0x03;
+    channelStatus[3]=(mess[2]>>6)&0x03;
     
-    temp_group=mess[FRAME_OFFSET_GROUP];
-    temp_dev=mess[FRAME_OFFSET_DEV];
-    temp_cmd=mess[FRAME_OFFSET_CMD];
+    channelStatus[4]=(mess[3]>>0)&0x03;
+    channelStatus[5]=(mess[3]>>2)&0x03;
+    channelStatus[6]=(mess[3]>>4)&0x03;
+    channelStatus[7]=(mess[3]>>6)&0x03;
     
-    switch(temp_cmd)
-    {
-        case FRAME_DATA_CMD_DETECT:
-            
-            break;
-        case FRAME_DATA_CMD_FIRE:
-            flagFire=1;
-            memcpy(fireChannel,&mess[FRAME_OFFSET_DATA],6);
-            break;
-        default:
-            break;
-    }
-    return temp_cmd;
+    channelStatus[8]=(mess[4]>>0)&0x03;
+    channelStatus[9]=(mess[4]>>2)&0x03;
+    channelStatus[10]=(mess[4]>>4)&0x03;
+    channelStatus[11]=(mess[4]>>6)&0x03;
+    
+    channelStatus[12]=(mess[5]>>0)&0x03;
+    channelStatus[13]=(mess[5]>>2)&0x03;
+
+    return 1;
 }
 
 uint8_t ProtocolPackage(uint8_t *buf,uint8_t cmd)
 {
-    uint8_t len=0;
-    uint8_t i=0;
-    buf[FRAME_OFFSET_HEAD]=FRAME_DATA_HEAD;
-    buf[FRAME_OFFSET_LEN]=12;
-    buf[FRAME_OFFSET_GROUP]=groupSN;
-    buf[FRAME_OFFSET_DEV]=devSN;
-    buf[FRAME_OFFSET_CMD]=cmd|0x80;
-    switch(cmd)
-    {
-        case FRAME_DATA_CMD_DETECT:
-            memcpy(&buf[FRAME_OFFSET_DATA],channelStatus,6);
-            break;
-        case FRAME_DATA_CMD_FIRE:
-            for(i=0;i<6;i++)
-            {
-                buf[FRAME_OFFSET_DATA+i]=fireChannel[i]?0x03:channelStatus[i];
-            }
-        //    memcpy(&buf[FRAME_OFFSET_DATA],channelStatus,6);
-            break;
-        default:
-            break;
-    }
-    buf[FRAME_OFFSET_CRC]=Get_CrcXOR(buf,11);
+    buf[0]=0xAA;
+    buf[1]=0x55;
+    buf[2]=cmd;
+    buf[3]=cmd;
+    buf[4]=cmd;
+    buf[5]=cmd;
+    buf[6]=cmd;
+    buf[7]=Get_CrcXOR(buf,7);
     
-    return 12;
+    return 8;
 }
 
-uint8_t ProtocolPackageFire(uint8_t *buf)
-{
-    uint8_t len=0;
-    uint8_t i=0;
-    buf[FRAME_OFFSET_HEAD]=FRAME_DATA_HEAD;
-    buf[FRAME_OFFSET_LEN]=12;
-    buf[FRAME_OFFSET_GROUP]=groupSN;
-    buf[FRAME_OFFSET_DEV]=devSN;
-    buf[FRAME_OFFSET_CMD]=FRAME_DATA_CMD_FIRE|0x80;
-    
-//    memcpy(&buf[FRAME_OFFSET_DATA],channelStatus,6);
-    buf[FRAME_OFFSET_CRC]=Get_CrcXOR(buf,11);
-    
-    return 12;
-}

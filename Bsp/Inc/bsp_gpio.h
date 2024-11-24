@@ -9,6 +9,8 @@ typedef struct
 	uint32_t		key_pin;
 }key_gpio_typedef;
 
+extern key_gpio_typedef key_gpio[];
+    
 #define LED1_SDB_PORT        GPIOB
 #define LED1_SDB_PIN         GPIO_PIN_4
 

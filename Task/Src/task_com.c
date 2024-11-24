@@ -14,7 +14,7 @@ void TaskCAN(void)
     if(canRx.flag)
     {
         canRx.flag=0;
-        
+        ProtocolParse(canRx.buf,canRx.len);
     }
 }
 void TaskCom(void)

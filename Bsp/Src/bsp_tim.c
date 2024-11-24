@@ -17,7 +17,6 @@ uint32_t TimerGet1ms(void)
 void Bsp_tim4_Init(void)
 {
 
-    TIM_SlaveConfigTypeDef sSlaveConfig = {0};
     TIM_MasterConfigTypeDef sMasterConfig = {0};
 
     htim4.Instance = TIM4;

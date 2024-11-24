@@ -72,7 +72,6 @@ void LedUpdate(uint8_t ch)
 
 void LedPwmDutySet(uint8_t led,uint8_t ch,uint8_t *duty,uint8_t len)
 {
-    uint8_t i;
     if(ch)
     {
         LedWrite(led,REG_DUTY_CH(ch),*duty);
@@ -82,7 +81,6 @@ void LedPwmDutySet(uint8_t led,uint8_t ch,uint8_t *duty,uint8_t len)
 }
 void LedSet(uint8_t led,uint8_t ch,uint8_t *cmd,uint8_t len)
 {
-    uint8_t i;
     if(ch)
     {
         LedWrite(led,REG_LED_CTRL(ch),*cmd);

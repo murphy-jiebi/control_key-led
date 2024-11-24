@@ -23,10 +23,15 @@
 #include "bsp_gpio.h"
 #include "bsp_led.h"
 #include "bsp_tim.h"
-#include "task_ctrl.h"
 #include "bsp_24cxx.h" 
 #include "task_com.h"
 #include "bsp_can.h"
+#include "bsp_key.h"
+#include "protocol.h"
+
+const uint8_t devID=0x02;
+
+
 
 uint8_t test=0;
 uint8_t test_buf[15]={0};
@@ -35,9 +40,9 @@ uint8_t test_data=0x11;
 
 uint32_t preTb1s=0;
 uint8_t channelStatus[14]={0};
-uint8_t fireChannel[6]={0};
 uint8_t flagFire=0;
-
+uint8_t key=0;
+uint8_t canTxBuf[8]={0};
 /**
   * @brief  The application entry point.
   * @retval int
@@ -58,11 +63,16 @@ int main(void)
         if(preTb1s!=TimerGet1s())
         {
             preTb1s=TimerGet1s();
-            LedRefresh(channelStatus);
         }
-
+        LedRefresh(channelStatus);
+        key=KeyScan();
+        if(key>0)
+        {
+            key=0;
+            ProtocolPackage(canTxBuf,key);
+            CAN_SendMsg(canTxBuf,8);
+        }
         TaskCom();
-        
         
         switch(test)
         {

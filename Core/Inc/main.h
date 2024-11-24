@@ -47,9 +47,9 @@ typedef enum
    
 }led_color_typedef;
 
+extern const uint8_t devID;
+
 extern uint8_t channelStatus[];
-extern uint8_t fireChannel[];
-extern uint8_t flagFire;
 
 
 void Error_Handler(void);
